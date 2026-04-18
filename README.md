@@ -1,60 +1,50 @@
-# Linux Utility App
+<p align="center">
+  <img src="static/ferrix-icon.png" alt="Ferrix" width="128" />
+</p>
 
-An all-in-one desktop application for managing, monitoring, and optimizing your Linux system. Built with **Tauri v2**, **Svelte 5**, and **Rust** — fully offline, local, and privacy-respecting.
+<h1 align="center">Ferrix</h1>
+
+<p align="center">
+  A Linux system utility built with Tauri v2, Svelte 5, and Rust.<br/>
+  Offline-only. No telemetry. No network calls.
+</p>
+
+<p align="center">
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Platform](https://img.shields.io/badge/platform-Linux-lightgrey)
 ![Rust](https://img.shields.io/badge/rust-2021-orange)
 ![Svelte](https://img.shields.io/badge/svelte-5-ff3e00)
 
----
-
-## Features
-
-### 🗑️ System Cleanup
-Scan and remove unused files, caches, and logs. Detects cleanup targets per distro and lets you selectively clean with a detailed results console.
-
-### 📊 Disk Usage
-Visual overview of all mounted partitions with usage bars and color-coded thresholds. Drill into directories with lazy-loaded space analysis and per-folder breakdowns.
-
-### ⚙️ Startup Manager
-Manage XDG autostart entries and systemd user services. Toggle, add, or remove startup items with full visibility into what runs at boot.
-
-### 🖥️ System Monitor
-Live hardware dashboard with configurable polling (0.5s–10s). Tracks CPU, memory, network I/O with 60-point rolling history. Shows detailed info for CPU, GPU, disks, network interfaces, and temperature sensors.
-
-### ⚡ Performance Optimizer
-Kernel and system performance tweaks across CPU, memory, storage, network, and kernel categories. View current vs. recommended values, apply individually, and restore defaults at any time.
-
-### 🛡️ Security Hardening
-Sysctl-based security hardening with toggles for network, kernel, and filesystem protections. Changes persist via `/etc/sysctl.d/` and can be individually reverted.
-
-### 🔥 Firewall Manager
-Full UFW frontend — view status and rules, add/delete rules with direction, port, protocol, source IP, and comments. Toggle the firewall on/off and set default policies.
-
-### 🌐 Network Monitor
-Real-time network snapshot: interfaces with bandwidth stats, active connections, DNS config, listening ports. Sortable and filterable with live traffic calculation between snapshots.
-
-### 🔧 Service Manager
-Browse all systemd services with status filtering (active/inactive/failed). Start, stop, restart, enable, or disable services. Inline log viewer per service.
-
-### 🔍 Permissions Auditor
-Security audit for SUID/SGID binaries, world-writable files, and home directory permission issues. Results are categorized by severity (critical/warning/info) with explanations of each detection.
-
-### 📦 Package Manager
-Curated catalog of ~70+ applications across 16 categories with multi-distro support (pacman, apt, dnf, zypper, xbps, apk, flatpak). Batch install/remove with a single password prompt and live console output.
-
-### ⬆️ System Updates
-Check for available updates across your native package manager and Flatpak — no root required for checking. On Arch-based distros, detects AUR helpers (yay/paru) for seamless AUR updates. Searchable update list with version comparison and streaming update output.
-
-### 📋 Log Viewer
-Browse journalctl logs with filters for priority level, systemd unit, boot session, time range, and grep pattern. Color-coded severity badges with expandable entry details.
+</p>
 
 ---
 
-## Distro Support
+## What it does
 
-The app auto-detects your distribution and adapts accordingly:
+Ferrix is a single desktop app that handles the kind of system tasks you'd normally do across a dozen terminal commands. Everything runs locally — no accounts, no servers, no background services.
+
+**Modules:**
+
+- **System Cleanup** — scan and remove unused caches, logs, and temp files
+- **Disk Usage** — partition overview with per-directory drill-down
+- **Startup Manager** — manage XDG autostart entries and systemd user services
+- **System Monitor** — live CPU, memory, network I/O with rolling history graphs
+- **Performance Optimizer** — sysctl tweaks for CPU, memory, storage, network, and kernel; view current vs. recommended values
+- **Security Hardening** — toggle sysctl-based protections for network, kernel, and filesystem; changes persist via `/etc/sysctl.d/`
+- **Firewall Manager** — UFW frontend for rules, policies, and status
+- **Network Monitor** — interfaces, active connections, DNS, listening ports, live traffic
+- **Service Manager** — browse, control, and inspect systemd services with inline logs
+- **Permissions Auditor** — find SUID/SGID binaries, world-writable files, and home directory issues
+- **Package Manager** — curated app catalog (~70+ packages) with multi-distro support and batch install
+- **System Updates** — check and apply updates from your package manager and Flatpak (AUR helper detection on Arch)
+- **Log Viewer** — query journalctl with filters for priority, unit, boot, time range, and grep
+
+---
+
+## Distro support
+
+Auto-detects your distribution and adapts package commands accordingly.
 
 | Distro Family | Package Manager | Tested |
 |---|---|---|
@@ -65,104 +55,86 @@ The app auto-detects your distribution and adapts accordingly:
 | Void Linux | xbps | ○ |
 | Alpine | apk | ○ |
 
-✅ = tested &nbsp; ○ = supported but not yet tested
+✅ = tested &nbsp; ○ = should work, not yet tested
 
 ---
 
-## Tech Stack
+## Building from source
 
-- **Frontend:** Svelte 5 (SvelteKit + static adapter)
-- **Backend:** Rust (Tauri v2)
-- **IPC:** Tauri command system with event streaming for live output
-- **Privilege escalation:** `pkexec` (Polkit) — only when a root action is performed
-- **No network calls** — everything runs locally via system commands and `/proc`/`/sys` reads
-
----
-
-## Building from Source
-
-### Prerequisites
-
-- [Rust](https://rustup.rs/) (stable)
-- [Node.js](https://nodejs.org/) (v18+)
-- [Tauri v2 prerequisites](https://v2.tauri.app/start/prerequisites/) (system dependencies for your distro)
-
-### Build & Run
+**Requirements:** [Rust](https://rustup.rs/) (stable), [Node.js](https://nodejs.org/) (v18+), [Tauri v2 system dependencies](https://v2.tauri.app/start/prerequisites/)
 
 ```bash
-# Clone the repo
-git clone https://github.com/rA9-001/Linux-Utility-App.git
-cd Linux-Utility-App
-
-# Install frontend dependencies
+git clone https://github.com/rA9-001/Ferrix.git
+cd Ferrix
 npm install
-
-# Run in development mode
-npm run tauri dev
-
-# Build for production
-npm run tauri build
+npm run tauri dev      # development
+npm run tauri build    # production (output: src-tauri/target/release/)
 ```
-
-The production binary will be in `src-tauri/target/release/`.
 
 ---
 
-## Project Structure
+## How it works
+
+- **Frontend:** Svelte 5 with SvelteKit (static adapter)
+- **Backend:** Rust via Tauri v2 command system
+- **Privilege escalation:** `pkexec` — only triggered when an action actually needs root
+- **No network calls** — reads from `/proc`, `/sys`, and local system commands
+
+---
+
+## Project structure
 
 ```
 src/                    # Svelte frontend
 ├── lib/                # Feature components (13 modules)
 ├── routes/             # SvelteKit pages
-├── app.html            # HTML shell
-└── global.css          # Global styles
+├── app.html
+└── global.css
 
 src-tauri/              # Rust backend
 ├── src/
-│   ├── lib.rs          # Tauri command registration & rate limiting
-│   ├── audit_log.rs    # Append-only audit log for privileged actions
-│   ├── cleaner.rs      # System cleanup scanning & execution
-│   ├── disk.rs         # Partition & directory space analysis
+│   ├── lib.rs          # Command registration, rate limiting
+│   ├── audit_log.rs    # Append-only audit log
+│   ├── cleaner.rs      # System cleanup
+│   ├── disk.rs         # Partition & directory analysis
 │   ├── distro.rs       # Distribution detection
-│   ├── firewall.rs     # UFW wrapper with input validation
+│   ├── firewall.rs     # UFW wrapper
 │   ├── hardening.rs    # Sysctl security hardening
-│   ├── hardware.rs     # Hardware info & live system stats
-│   ├── logs.rs         # journalctl log querying
-│   ├── network.rs      # Network interfaces, connections, traffic
-│   ├── optimizer.rs    # Kernel/system performance tweaks
-│   ├── packages.rs     # Multi-distro package catalog & installer
-│   ├── permissions.rs  # SUID/SGID/world-writable auditing
-│   ├── services.rs     # systemd service management
-│   ├── startup.rs      # Autostart entry management
-│   └── updates.rs      # System update checking & applying
-├── audit.toml          # cargo-audit advisory config
-├── deny.toml           # cargo-deny license/advisory config
+│   ├── hardware.rs     # Hardware info & live stats
+│   ├── logs.rs         # journalctl queries
+│   ├── network.rs      # Network interfaces & traffic
+│   ├── optimizer.rs    # Performance tweaks
+│   ├── packages.rs     # Package catalog & installer
+│   ├── permissions.rs  # SUID/SGID/world-writable audit
+│   ├── services.rs     # systemd management
+│   ├── startup.rs      # Autostart entries
+│   └── updates.rs      # System updates
 ├── Cargo.toml
 └── tauri.conf.json
 ```
 
 ---
 
-## Security & Privacy
+## Security
 
-- **Fully offline** — no telemetry, no analytics, no network requests
-- **Minimal permissions** — root access is only requested via `pkexec` when an action explicitly needs it (installing packages, applying system tweaks, managing services, etc.)
-- **Read-only by default** — browsing hardware info, logs, disk usage, and network status requires no elevated privileges
-- **Strict input validation** — all user-facing inputs (ports, IPs, package names, paths, unit names) are validated against allow-list patterns before reaching system commands
-- **Audit logging** — every privileged action is logged to `$XDG_STATE_HOME/linux-utility-app/audit.log` with timestamps
-- **Rate limiting** — privileged commands are rate-limited to prevent accidental rapid-fire execution
-- **Hardened builds** — release binaries use LTO, single codegen unit, overflow checks, and symbol stripping
-- **CSP & prototype freeze** — frontend is locked down with a strict Content Security Policy and frozen prototypes
-- **Open source** — audit the entire codebase yourself
+- Fully offline — no telemetry, no analytics, nothing phones home
+- Root access only requested when actually needed (via `pkexec`)
+- All user inputs validated against allow-list patterns before reaching system commands
+- Privileged actions logged to `$XDG_STATE_HOME/ferrix/audit.log`
+- Privileged commands are rate-limited
+- Release builds use LTO, single codegen unit, overflow checks, and symbol stripping
+- Frontend locked down with CSP and frozen prototypes
 
 ---
 
-## License
+## Contributing
 
-[MIT](LICENSE)
+Ferrix is open source under the [MIT license](LICENSE) — fork it, modify it, use it however you want.
+
+Direct push access to this repo is restricted. If you want to report a bug, suggest a feature, or discuss a change, [open an issue](https://github.com/rA9-001/Ferrix/issues).
 
 ---
 
-## Recommended IDE Setup
+## IDE setup
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)

@@ -154,8 +154,8 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <span class="brand-mark"></span>
-          <h1>Linux Utility</h1>
+          <img class="brand-logo" src="/favicon.png" alt="Ferrix" />
+          <h1>Ferrix</h1>
         </div>
       </div>
       <nav>
@@ -515,22 +515,12 @@
     align-items: center;
     gap: 12px;
   }
-  .brand-mark {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent) 0%, #ff9558 100%);
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    position: relative;
+  .brand-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    object-fit: contain;
     flex-shrink: 0;
-  }
-  .brand-mark::after {
-    content: "";
-    position: absolute;
-    inset: 7px;
-    border-radius: 3px;
-    background: var(--bg-canvas);
-    box-shadow: inset 0 0 0 2px var(--accent);
   }
   .sidebar-header h1 {
     font-family: var(--font-display);

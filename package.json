@@ -1,7 +1,7 @@
 {
-  "name": "linux-utility-app",
+  "name": "ferrix",
   "version": "0.1.0",
-  "description": "An all-in-one desktop application for managing, monitoring, and optimizing your Linux system",
+  "description": "Ferrix — an all-in-one desktop application for managing, monitoring, and optimizing your Linux system",
   "type": "module",
   "scripts": {
     "dev": "vite dev",

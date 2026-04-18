@@ -42,8 +42,8 @@ fn run_cmd(program: &str, args: &[&str]) -> Result<String, String> {
     }
 }
 
-const SYSCTL_PERF_CONF: &str = "/etc/sysctl.d/99-linux-utility-performance.conf";
-const TMPFILES_PERF_CONF: &str = "/etc/tmpfiles.d/99-linux-utility-performance.conf";
+const SYSCTL_PERF_CONF: &str = "/etc/sysctl.d/99-ferrix-performance.conf";
+const TMPFILES_PERF_CONF: &str = "/etc/tmpfiles.d/99-ferrix-performance.conf";
 
 fn persist_sysctl_perf(key: &str, value: &str) {
     let line = format!("{} = {}", key, value);
@@ -68,7 +68,7 @@ fn persist_sysctl_perf(key: &str, value: &str) {
     settings.push(line);
     settings.sort();
 
-    let header = "# Managed by Linux Utility App - Performance Optimizer\n\
+    let header = "# Managed by Ferrix - Performance Optimizer\n\
                   # Do not edit manually; changes are overwritten on apply/restore.\n";
     let content = format!("{}{}\n", header, settings.join("\n"));
 
@@ -157,7 +157,7 @@ fn persist_sysfs(path: &str, value: &str) {
     settings.push(line);
     settings.sort();
 
-    let header = "# Managed by Linux Utility App - Performance Optimizer\n\
+    let header = "# Managed by Ferrix - Performance Optimizer\n\
                   # Do not edit manually; changes are overwritten on apply/restore.\n";
     let content = format!("{}{}\n", header, settings.join("\n"));
 

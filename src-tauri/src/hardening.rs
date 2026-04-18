@@ -49,7 +49,7 @@ fn apply_sysctl(key: &str, value: &str) -> Result<String, String> {
 }
 
 fn persist_sysctl(key: &str, value: &str) {
-    let conf_path = "/etc/sysctl.d/99-linux-utility-hardening.conf";
+    let conf_path = "/etc/sysctl.d/99-ferrix-hardening.conf";
     let line = format!("{} = {}", key, value);
 
     // Read existing file or start fresh
@@ -77,7 +77,7 @@ fn persist_sysctl(key: &str, value: &str) {
     lines.push(line);
     lines.sort();
 
-    let header = "# Managed by Linux Utility App - Security Hardening\n# Do not edit manually; changes are overwritten on apply/restore.\n";
+    let header = "# Managed by Ferrix - Security Hardening\n# Do not edit manually; changes are overwritten on apply/restore.\n";
     let content = format!("{}{}\n", header, lines.join("\n"));
 
     // Write via tee (reuses the existing pkexec auth cache)
@@ -96,7 +96,7 @@ fn persist_sysctl(key: &str, value: &str) {
 }
 
 fn remove_persisted_sysctl(key: &str) {
-    let conf_path = "/etc/sysctl.d/99-linux-utility-hardening.conf";
+    let conf_path = "/etc/sysctl.d/99-ferrix-hardening.conf";
 
     let existing = Command::new("cat")
         .arg(conf_path)
