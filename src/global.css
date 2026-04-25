@@ -164,18 +164,6 @@ code, pre, kbd, samp {
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); background-clip: padding-box; }
 ::-webkit-scrollbar-corner { background: transparent; }
 
-/* ---------------------------------------------------------------
-   Scroll performance
-   - `overscroll-behavior: contain` stops scroll chaining so we
-     don't trigger expensive parent re-paints near the edges.
-   - `contain: content` on common list/table containers lets the
-     browser skip layout/paint of off-screen subtrees.
-   --------------------------------------------------------------- */
-* {
-  /* Prevent rubber-band scroll from propagating to parent containers */
-  overscroll-behavior: contain;
-}
-
 ::selection {
   background: var(--accent-soft);
   color: var(--text-primary);

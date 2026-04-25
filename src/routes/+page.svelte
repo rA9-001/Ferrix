@@ -689,10 +689,6 @@
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    overscroll-behavior: contain;
-    /* Tell the compositor each pane is an isolated subtree so paints
-       and layouts don't escape and so off-screen areas can be skipped. */
-    contain: layout paint style;
     padding: 32px 40px;
   }
   .view-pane[hidden] { display: none !important; }
