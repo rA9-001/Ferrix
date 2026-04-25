@@ -9,3 +9,7 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 src-tauri/target
+
+# Local-only notes (never commit)
+*.local.md
+RELEASING.local.md
