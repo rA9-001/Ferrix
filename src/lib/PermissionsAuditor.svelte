@@ -477,7 +477,7 @@
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     white-space: nowrap;
   }
 

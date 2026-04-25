@@ -406,7 +406,7 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
     white-space: nowrap;
   }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -452,7 +452,7 @@
     border: 1px solid #27272a;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
     user-select: none;
   }
   .partition-card:hover { border-color: #7c3aed; background: #1a1625; }

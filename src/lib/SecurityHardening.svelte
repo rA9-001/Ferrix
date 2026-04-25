@@ -257,7 +257,7 @@
     font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -292,7 +292,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .btn-apply:hover {
@@ -314,7 +314,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -334,7 +334,7 @@
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .btn-restore-small:hover {

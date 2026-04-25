@@ -506,7 +506,7 @@
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .filter-tab:hover {
@@ -649,7 +649,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     padding: 0;
     color: #94a3b8;
   }

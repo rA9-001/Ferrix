@@ -495,7 +495,7 @@
     font-weight: 500;
     cursor: pointer;
     border: 1px solid transparent;
-    transition: all 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
   }
 
   .btn-secondary {
@@ -724,7 +724,7 @@
     border: 1px solid rgba(148, 163, 184, 0.15);
     border-radius: 6px;
     color: #94a3b8;
-    transition: all 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
   }
   .btn-sm:hover {
     background: rgba(148, 163, 184, 0.15);
@@ -748,7 +748,7 @@
     border-radius: 6px;
     color: #94a3b8;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
   }
   .cat-tab:hover {
     background: rgba(236, 72, 153, 0.1);
@@ -823,7 +823,7 @@
     border: 1px solid rgba(148, 163, 184, 0.1);
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     text-align: left;
     color: inherit;
     font: inherit;

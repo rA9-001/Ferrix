@@ -718,7 +718,7 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all var(--duration) var(--ease);
+    transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease);
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
@@ -792,7 +792,7 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all var(--duration) var(--ease);
+    transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease);
     white-space: nowrap;
   }
   .btn-console:hover { background: rgba(74, 222, 128, 0.15); }
@@ -836,7 +836,7 @@
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: all var(--duration) var(--ease);
+    transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease);
   }
   .filter-btn:hover { color: var(--text-secondary); background: var(--surface-1); }
   .filter-btn.active { background: var(--surface-3); color: var(--text-primary); border-color: var(--border-default); }
@@ -1060,7 +1060,7 @@
     cursor: pointer;
     padding: 4px 8px;
     border-radius: var(--radius-sm);
-    transition: all var(--duration) var(--ease);
+    transition: background-color var(--duration) var(--ease), border-color var(--duration) var(--ease), color var(--duration) var(--ease);
   }
   .expand-btn:hover { color: var(--accent-hover); background: var(--accent-soft); }
 

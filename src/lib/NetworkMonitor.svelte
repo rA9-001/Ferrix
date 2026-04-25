@@ -622,7 +622,7 @@
     font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -706,7 +706,7 @@
     font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .rate-btn:hover {
@@ -740,7 +740,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1119,7 +1119,7 @@
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .filter-btn:hover {

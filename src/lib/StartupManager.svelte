@@ -276,7 +276,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .refresh-btn:hover {
@@ -302,7 +302,7 @@
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 600;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .add-btn:hover {
@@ -415,7 +415,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 600;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
   }
 
   .submit-btn:hover:not(:disabled) {
@@ -481,7 +481,7 @@
     border: 1px solid #334155;
     border-radius: 10px;
     padding: 14px 16px;
-    transition: all 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     content-visibility: auto;
     contain-intrinsic-size: auto 80px;
   }
