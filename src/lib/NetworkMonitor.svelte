@@ -1,6 +1,8 @@
 <script>
   import { invoke } from "@tauri-apps/api/core";
 
+  let { active = true } = $props();
+
   let snapshot = $state(null);
   let loading = $state(true);
   let bandwidth = $state({});
@@ -116,15 +118,20 @@
     }
   }
 
+  // Only poll network state while this view is the active tab so background
+  // tabs don't keep hammering ss / ip / resolvectl.
   $effect(() => {
-    startPolling();
-    return () => stopPolling();
+    if (active) {
+      startPolling();
+      return () => stopPolling();
+    }
   });
 
   let updateAgo = $state("");
   let agoTimer = $state(null);
 
   $effect(() => {
+    if (!active) return;
     agoTimer = setInterval(() => {
       if (lastUpdate) {
         const sec = Math.round((Date.now() - lastUpdate) / 1000);

@@ -1,6 +1,8 @@
 <script>
   import { invoke } from "@tauri-apps/api/core";
 
+  let { active = true } = $props();
+
   let hwInfo = $state(null);
   let loading = $state(true);
   let error = $state(null);
@@ -169,8 +171,14 @@
 
   $effect(() => {
     loadHardware();
-    startPolling();
-    return () => stopPolling();
+  });
+
+  // Only poll system stats while this view is the active tab.
+  $effect(() => {
+    if (active) {
+      startPolling();
+      return () => stopPolling();
+    }
   });
 </script>
 

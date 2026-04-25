@@ -1,7 +1,7 @@
 <script>
   import { invoke } from "@tauri-apps/api/core";
 
-  let { onNavigate } = $props();
+  let { onNavigate, active = true } = $props();
 
   let stats = $state(null);
   let gpu = $state(null);
@@ -69,8 +69,15 @@
 
   $effect(() => {
     loadStatic();
-    startPolling();
-    return () => stopPolling();
+  });
+
+  // Only poll while this view is the active tab so background tabs don't
+  // burn CPU on Tauri invokes every couple of seconds.
+  $effect(() => {
+    if (active) {
+      startPolling();
+      return () => stopPolling();
+    }
   });
 
   let rootPartition = $derived(

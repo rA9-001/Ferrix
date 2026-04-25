@@ -18,6 +18,17 @@
   let confirmCleanupOpen = $state(false);
 
   let activeView = $state("dashboard");
+  // Tabs are mounted on first visit and kept alive afterwards so switching
+  // back is instant and scroll positions are preserved. Heavy pollers
+  // (Dashboard, HardwareInfo, NetworkMonitor) receive `active` and pause
+  // their intervals while hidden.
+  let activated = $state(new Set(["dashboard"]));
+  function switchTo(view) {
+    if (!activated.has(view)) {
+      activated = new Set([...activated, view]);
+    }
+    activeView = view;
+  }
   let distroInfo = $state(null);
   let categories = $state([]);
   let scanning = $state(false);
@@ -159,25 +170,25 @@
         </div>
       </div>
       <nav>
-        <button class="nav-item" class:active={activeView === "dashboard"} onclick={() => activeView = "dashboard"}>
+        <button class="nav-item" class:active={activeView === "dashboard"} onclick={() => switchTo("dashboard")}>
           <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
           <span class="nav-label">Dashboard</span>
         </button>
         <div class="nav-section">
           <div class="nav-section-label">Maintenance</div>
-          <button class="nav-item" class:active={activeView === "cleanup"} onclick={() => activeView = "cleanup"}>
+          <button class="nav-item" class:active={activeView === "cleanup"} onclick={() => switchTo("cleanup")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M5 6v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></span>
             <span class="nav-label">System Cleanup</span>
           </button>
-          <button class="nav-item" class:active={activeView === "disk"} onclick={() => activeView = "disk"}>
+          <button class="nav-item" class:active={activeView === "disk"} onclick={() => switchTo("disk")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/></svg></span>
             <span class="nav-label">Disk Usage</span>
           </button>
-          <button class="nav-item" class:active={activeView === "updates"} onclick={() => activeView = "updates"}>
+          <button class="nav-item" class:active={activeView === "updates"} onclick={() => switchTo("updates")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/><line x1="5" y1="19" x2="19" y2="19"/></svg></span>
             <span class="nav-label">Updates</span>
           </button>
-          <button class="nav-item" class:active={activeView === "packages"} onclick={() => activeView = "packages"}>
+          <button class="nav-item" class:active={activeView === "packages"} onclick={() => switchTo("packages")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
             <span class="nav-label">Packages</span>
           </button>
@@ -185,23 +196,23 @@
 
         <div class="nav-section">
           <div class="nav-section-label">System</div>
-          <button class="nav-item" class:active={activeView === "hardware"} onclick={() => activeView = "hardware"}>
+          <button class="nav-item" class:active={activeView === "hardware"} onclick={() => switchTo("hardware")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
             <span class="nav-label">System Monitor</span>
           </button>
-          <button class="nav-item" class:active={activeView === "optimizer"} onclick={() => activeView = "optimizer"}>
+          <button class="nav-item" class:active={activeView === "optimizer"} onclick={() => switchTo("optimizer")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
             <span class="nav-label">Performance</span>
           </button>
-          <button class="nav-item" class:active={activeView === "services"} onclick={() => activeView = "services"}>
+          <button class="nav-item" class:active={activeView === "services"} onclick={() => switchTo("services")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
             <span class="nav-label">Services</span>
           </button>
-          <button class="nav-item" class:active={activeView === "startup"} onclick={() => activeView = "startup"}>
+          <button class="nav-item" class:active={activeView === "startup"} onclick={() => switchTo("startup")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></span>
             <span class="nav-label">Startup</span>
           </button>
-          <button class="nav-item" class:active={activeView === "logs"} onclick={() => activeView = "logs"}>
+          <button class="nav-item" class:active={activeView === "logs"} onclick={() => switchTo("logs")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg></span>
             <span class="nav-label">Logs</span>
           </button>
@@ -209,11 +220,11 @@
 
         <div class="nav-section">
           <div class="nav-section-label">Network</div>
-          <button class="nav-item" class:active={activeView === "network"} onclick={() => activeView = "network"}>
+          <button class="nav-item" class:active={activeView === "network"} onclick={() => switchTo("network")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
             <span class="nav-label">Network</span>
           </button>
-          <button class="nav-item" class:active={activeView === "firewall"} onclick={() => activeView = "firewall"}>
+          <button class="nav-item" class:active={activeView === "firewall"} onclick={() => switchTo("firewall")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
             <span class="nav-label">Firewall</span>
           </button>
@@ -221,11 +232,11 @@
 
         <div class="nav-section">
           <div class="nav-section-label">Security</div>
-          <button class="nav-item" class:active={activeView === "hardening"} onclick={() => activeView = "hardening"}>
+          <button class="nav-item" class:active={activeView === "hardening"} onclick={() => switchTo("hardening")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
             <span class="nav-label">Hardening</span>
           </button>
-          <button class="nav-item" class:active={activeView === "permissions"} onclick={() => activeView = "permissions"}>
+          <button class="nav-item" class:active={activeView === "permissions"} onclick={() => switchTo("permissions")}>
             <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
             <span class="nav-label">Permissions</span>
           </button>
@@ -246,33 +257,48 @@
     </aside>
 
     <section class="content">
-      {#if activeView === "dashboard"}
-        <Dashboard onNavigate={(view) => activeView = view} />
-      {:else if activeView === "disk"}
-        <DiskUsage />
-      {:else if activeView === "startup"}
-        <StartupManager />
-      {:else if activeView === "hardware"}
-        <HardwareInfo />
-      {:else if activeView === "optimizer"}
-        <PerformanceOptimizer />
-      {:else if activeView === "hardening"}
-        <SecurityHardening />
-      {:else if activeView === "firewall"}
-        <FirewallManager />
-      {:else if activeView === "network"}
-        <NetworkMonitor />
-      {:else if activeView === "services"}
-        <ServiceManager />
-      {:else if activeView === "permissions"}
-        <PermissionsAuditor />
-      {:else if activeView === "packages"}
-        <PackageInstaller />
-      {:else if activeView === "updates"}
-        <UpdateManager />
-      {:else if activeView === "logs"}
-        <LogViewer />
-      {:else}
+      <div class="view-pane" hidden={activeView !== "dashboard"}>
+        {#if activated.has("dashboard")}
+          <Dashboard onNavigate={(view) => switchTo(view)} active={activeView === "dashboard"} />
+        {/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "disk"}>
+        {#if activated.has("disk")}<DiskUsage />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "startup"}>
+        {#if activated.has("startup")}<StartupManager />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "hardware"}>
+        {#if activated.has("hardware")}<HardwareInfo active={activeView === "hardware"} />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "optimizer"}>
+        {#if activated.has("optimizer")}<PerformanceOptimizer />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "hardening"}>
+        {#if activated.has("hardening")}<SecurityHardening />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "firewall"}>
+        {#if activated.has("firewall")}<FirewallManager />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "network"}>
+        {#if activated.has("network")}<NetworkMonitor active={activeView === "network"} />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "services"}>
+        {#if activated.has("services")}<ServiceManager />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "permissions"}>
+        {#if activated.has("permissions")}<PermissionsAuditor />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "packages"}>
+        {#if activated.has("packages")}<PackageInstaller />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "updates"}>
+        {#if activated.has("updates")}<UpdateManager />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "logs"}>
+        {#if activated.has("logs")}<LogViewer />{/if}
+      </div>
+      <div class="view-pane" hidden={activeView !== "cleanup"}>
       <header class="content-header">
         <div>
           <h2>System Cleanup</h2>
@@ -467,7 +493,7 @@
           {/each}
         </div>
       {/if}
-      {/if}
+      </div>
     </section>
   </div>
 </main>
@@ -651,12 +677,25 @@
   /* ================ CONTENT ================ */
   .content {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    padding: 32px 40px;
+    overflow: hidden;
     background: var(--bg-base);
+    position: relative;
   }
+  .view-pane {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    /* Tell the compositor each pane is an isolated subtree so paints
+       and layouts don't escape and so off-screen areas can be skipped. */
+    contain: layout paint style;
+    padding: 32px 40px;
+  }
+  .view-pane[hidden] { display: none !important; }
   .content-header {
     display: flex;
     justify-content: space-between;
