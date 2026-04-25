@@ -96,26 +96,91 @@ pub struct UpdateCheckResult {
     pub summary: String,
 }
 
+/// Replicate `checkupdates` from pacman-contrib without requiring root or
+/// touching the system sync DB:
+///   1. Create a private temp dbpath that mirrors `/var/lib/pacman` layout.
+///   2. Hardlink-or-copy the existing sync DB into it (so we don't re-download
+///      everything if the system DB is fresh).
+///   3. `pacman -Sy --dbpath <tmp>` to refresh it (no root needed for a
+///      user-owned dbpath; pacman only needs to write inside the temp dir).
+///   4. `pacman -Qu --dbpath <tmp>` to list upgradable packages.
+///
+/// Returns the raw stdout of `pacman -Qu` (lines like
+/// `name oldver -> newver`) on success, or `None` on any failure.
+fn pacman_check_updates_via_temp_db() -> Option<String> {
+    use std::fs;
+    use std::path::PathBuf;
+
+    let tmp_root = std::env::temp_dir().join(format!("ferrix-checkupdates-{}", std::process::id()));
+    let sync_dst = tmp_root.join("sync");
+    let local_link = tmp_root.join("local");
+
+    let _ = fs::remove_dir_all(&tmp_root);
+    fs::create_dir_all(&sync_dst).ok()?;
+
+    // Mirror existing sync DB into temp (cheap; files are small).
+    let sys_sync = PathBuf::from("/var/lib/pacman/sync");
+    if let Ok(entries) = fs::read_dir(&sys_sync) {
+        for entry in entries.flatten() {
+            let src = entry.path();
+            let dst = sync_dst.join(entry.file_name());
+            if fs::hard_link(&src, &dst).is_err() {
+                let _ = fs::copy(&src, &dst);
+            }
+        }
+    }
+
+    // pacman needs a `local` dir; symlink to the real one (read-only use).
+    let _ = std::os::unix::fs::symlink("/var/lib/pacman/local", &local_link);
+
+    // Refresh the temp sync DB (downloads only diffs, no root needed).
+    let sync_status = Command::new("pacman")
+        .args(["-Sy", "--dbpath"])
+        .arg(&tmp_root)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .ok()?;
+    if !sync_status.success() {
+        let _ = fs::remove_dir_all(&tmp_root);
+        return None;
+    }
+
+    // pacman -Qu exits 1 when there are no updates; that's still success here.
+    let qu = Command::new("pacman")
+        .args(["-Qu", "--dbpath"])
+        .arg(&tmp_root)
+        .output()
+        .ok()?;
+
+    let _ = fs::remove_dir_all(&tmp_root);
+    Some(String::from_utf8_lossy(&qu.stdout).into_owned())
+}
+
 pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
     let mut updates = Vec::new();
     let mut flatpak_updates = Vec::new();
 
     match package_manager {
         "pacman" => {
-            // Check official repo updates via checkupdates (no root needed)
-            let out = Command::new("checkupdates").output()
-                .or_else(|_| Command::new("pacman").args(["-Qu"]).output());
-            if let Ok(out) = out {
-                let stdout = String::from_utf8_lossy(&out.stdout);
-                for line in stdout.lines() {
-                    let parts: Vec<&str> = line.split_whitespace().collect();
-                    if parts.len() >= 4 {
-                        updates.push(UpdateInfo {
-                            name: parts[0].to_string(),
-                            current_version: parts[1].to_string(),
-                            new_version: parts[3].to_string(),
-                        });
-                    }
+            // Check official repo updates. Prefer `checkupdates` from
+            // pacman-contrib (no root needed, syncs to a temp DB).
+            // If unavailable, replicate it ourselves so we never silently
+            // return stale results from a stale local sync DB.
+            let stdout_str = match Command::new("checkupdates").output() {
+                Ok(out) if out.status.success() || !out.stdout.is_empty() => {
+                    String::from_utf8_lossy(&out.stdout).into_owned()
+                }
+                _ => pacman_check_updates_via_temp_db().unwrap_or_default(),
+            };
+            for line in stdout_str.lines() {
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                if parts.len() >= 4 {
+                    updates.push(UpdateInfo {
+                        name: parts[0].to_string(),
+                        current_version: parts[1].to_string(),
+                        new_version: parts[3].to_string(),
+                    });
                 }
             }
 
