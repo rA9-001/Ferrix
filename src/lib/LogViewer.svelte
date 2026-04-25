@@ -412,6 +412,8 @@
     background: rgba(15, 23, 42, 0.3);
     border-radius: 4px;
     transition: background 0.15s;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 32px;
   }
   .log-entry-wrapper:hover {
     background: rgba(30, 41, 59, 0.5);

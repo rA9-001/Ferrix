@@ -827,6 +827,9 @@
     text-align: left;
     color: inherit;
     font: inherit;
+    /* Skip painting off-screen cards while scrolling. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 56px;
   }
   .package-card:hover:not(:disabled) {
     background: rgba(236, 72, 153, 0.06);

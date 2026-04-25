@@ -223,7 +223,7 @@
         </thead>
         <tbody>
           {#each filteredServices as svc}
-            <tr class:failed-row={svc.active_state === "failed"}>
+            <tr class:failed-row={svc.active_state === "failed"} class="svc-row">
               <td class="col-name">
                 <span class="svc-name">{svc.name}</span>
               </td>
@@ -578,6 +578,15 @@
 
   .failed-row {
     background: rgba(239, 68, 68, 0.05) !important;
+  }
+
+  /* Skip rendering off-screen rows. systemd often returns 200+ services
+     and each row contains 4-5 inline SVGs — without this, WebKitGTK
+     paints them all on every scroll frame. `contain-intrinsic-size`
+     reserves space so the scrollbar doesn't jump. */
+  .svc-row {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 44px;
   }
 
   .svc-name {

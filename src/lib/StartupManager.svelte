@@ -482,6 +482,8 @@
     border-radius: 10px;
     padding: 14px 16px;
     transition: all 0.15s;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 80px;
   }
 
   .entry-card:hover {

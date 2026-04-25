@@ -432,6 +432,8 @@
     border-bottom: 1px solid rgba(148, 163, 184, 0.05);
     font-size: 0.85rem;
     align-items: center;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 36px;
   }
   .table-row:last-child {
     border-bottom: none;
