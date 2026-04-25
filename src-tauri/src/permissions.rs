@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::fs;
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
 use std::path::Path;
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuditReport {
@@ -102,7 +102,7 @@ fn find_world_writable(paths: &[String]) -> Vec<AuditEntry> {
         "-xdev", "-type", "f", "-perm", "-0002", "-not", "-type", "l",
     ]);
 
-    let output = Command::new("find").args(&argv).output();
+    let output = system_command("find").args(&argv).output();
 
     if let Ok(out) = output {
         let stdout = String::from_utf8_lossy(&out.stdout);
@@ -146,7 +146,7 @@ fn find_suid_binaries(paths: &[String]) -> Vec<AuditEntry> {
             argv.push(p.as_str());
         }
         argv.extend(["-xdev", "-type", "f", "-perm", "-4000"]);
-        Command::new("find").args(&argv).output()
+        system_command("find").args(&argv).output()
     };
 
     if let Ok(out) = output {
@@ -184,7 +184,7 @@ fn find_sgid_binaries(paths: &[String]) -> Vec<AuditEntry> {
         argv.push(p.as_str());
     }
     argv.extend(["-xdev", "-type", "f", "-perm", "-2000"]);
-    let output = Command::new("find").args(&argv).output();
+    let output = system_command("find").args(&argv).output();
 
     if let Ok(out) = output {
         let stdout = String::from_utf8_lossy(&out.stdout);
@@ -357,7 +357,7 @@ fn format_permissions(mode: u32) -> String {
 }
 
 fn uid_to_name(uid: u32) -> String {
-    let output = Command::new("id")
+    let output = system_command("id")
         .args(["-nu", &uid.to_string()])
         .output();
 
@@ -370,7 +370,7 @@ fn uid_to_name(uid: u32) -> String {
 }
 
 fn gid_to_name(gid: u32) -> String {
-    let output = Command::new("getent")
+    let output = system_command("getent")
         .args(["group", &gid.to_string()])
         .output();
 

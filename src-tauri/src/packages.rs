@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
+use std::process::Stdio;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PackageDef {
@@ -273,12 +274,12 @@ fn is_installed(pm: &str, pkg: &PackageDef) -> bool {
 
     if let Some(name) = native_name {
         let result = match pm {
-            "pacman" => Command::new("pacman").args(["-Qi", name]).output(),
-            "apt" => Command::new("dpkg").args(["-s", name]).output(),
-            "dnf" => Command::new("rpm").args(["-q", name]).output(),
-            "zypper" => Command::new("rpm").args(["-q", name]).output(),
-            "xbps" => Command::new("xbps-query").args([name]).output(),
-            "apk" => Command::new("apk").args(["info", "-e", name]).output(),
+            "pacman" => system_command("pacman").args(["-Qi", name]).output(),
+            "apt" => system_command("dpkg").args(["-s", name]).output(),
+            "dnf" => system_command("rpm").args(["-q", name]).output(),
+            "zypper" => system_command("rpm").args(["-q", name]).output(),
+            "xbps" => system_command("xbps-query").args([name]).output(),
+            "apk" => system_command("apk").args(["info", "-e", name]).output(),
             _ => return false,
         };
         if let Ok(out) = result {
@@ -291,7 +292,7 @@ fn is_installed(pm: &str, pkg: &PackageDef) -> bool {
     // Check flatpak
     if let Some(flatpak_id) = pkg.packages.flatpak.as_deref() {
         if validate_flatpak_id(flatpak_id) {
-            if let Ok(out) = Command::new("flatpak").args(["info", flatpak_id]).output() {
+            if let Ok(out) = system_command("flatpak").args(["info", flatpak_id]).output() {
                 if out.status.success() {
                     return true;
                 }
@@ -347,7 +348,7 @@ fn run_command_streaming<F: Fn(&str)>(
     program: &str,
     args: &[String],
 ) -> Result<(bool, String), String> {
-    let mut child = Command::new(program)
+    let mut child = system_command(program)
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -536,11 +537,11 @@ pub fn remove_packages_batch<F: Fn(&str)>(
         if let Some(name) = get_native_name(package_manager, pkg) {
             if validate_name(name) {
                 let check = match package_manager {
-                    "pacman" => Command::new("pacman").args(["-Qi", name]).output(),
-                    "apt" => Command::new("dpkg").args(["-s", name]).output(),
-                    "dnf" | "zypper" => Command::new("rpm").args(["-q", name]).output(),
-                    "xbps" => Command::new("xbps-query").args([name]).output(),
-                    "apk" => Command::new("apk").args(["info", "-e", name]).output(),
+                    "pacman" => system_command("pacman").args(["-Qi", name]).output(),
+                    "apt" => system_command("dpkg").args(["-s", name]).output(),
+                    "dnf" | "zypper" => system_command("rpm").args(["-q", name]).output(),
+                    "xbps" => system_command("xbps-query").args([name]).output(),
+                    "apk" => system_command("apk").args(["info", "-e", name]).output(),
                     _ => Err(std::io::Error::new(std::io::ErrorKind::Other, "unsupported")),
                 };
                 if check.map(|o| o.status.success()).unwrap_or(false) {
@@ -551,7 +552,7 @@ pub fn remove_packages_batch<F: Fn(&str)>(
         }
         if let Some(fid) = pkg.packages.flatpak.as_deref() {
             if validate_flatpak_id(fid) {
-                if let Ok(out) = Command::new("flatpak").args(["info", fid]).output() {
+                if let Ok(out) = system_command("flatpak").args(["info", fid]).output() {
                     if out.status.success() {
                         flatpak_only.push(pkg);
                         continue;

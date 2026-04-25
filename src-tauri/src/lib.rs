@@ -12,6 +12,7 @@ mod packages;
 mod permissions;
 mod services;
 mod startup;
+mod sysenv;
 mod updates;
 
 use cleaner::{CleanupCategory, CleanupResult};

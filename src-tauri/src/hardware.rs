@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::process::Command;
 use std::sync::Mutex;
 use std::sync::OnceLock;
 
@@ -276,7 +276,7 @@ fn gather_gpu_info() -> Vec<GpuInfo> {
     let mut gpus = Vec::new();
 
     // Use lspci to find GPUs
-    let output = Command::new("lspci")
+    let output = system_command("lspci")
         .args(["-mm", "-nn"])
         .output();
 
@@ -338,7 +338,7 @@ fn gather_gpu_info() -> Vec<GpuInfo> {
 }
 
 fn enrich_nvidia_gpus(gpus: &mut [GpuInfo]) {
-    let output = Command::new("nvidia-smi")
+    let output = system_command("nvidia-smi")
         .args([
             "--query-gpu=name,memory.total,memory.used,memory.free,clocks.max.graphics,clocks.current.graphics,clocks.max.memory,clocks.current.memory,power.limit,power.draw,temperature.gpu,pstate,fan.speed",
             "--format=csv,noheader,nounits",
@@ -461,7 +461,7 @@ fn gather_disk_info() -> Vec<DiskInfo> {
     let mut disks = Vec::new();
 
     // Use lsblk for a clean view
-    let output = Command::new("lsblk")
+    let output = system_command("lsblk")
         .args(["-b", "-J", "-o", "NAME,SIZE,TYPE,MODEL,MOUNTPOINT,FSTYPE,ROTA"])
         .output();
 
@@ -590,7 +590,7 @@ fn get_interface_ips(name: &str) -> (String, String) {
     let mut ipv4 = String::new();
     let mut ipv6 = String::new();
 
-    let output = Command::new("ip")
+    let output = system_command("ip")
         .args(["-o", "addr", "show", name])
         .output();
 

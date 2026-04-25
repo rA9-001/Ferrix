@@ -1,57 +1,8 @@
 use serde::Serialize;
 use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
+use std::process::Stdio;
 
-/// Build a `Command` with an environment safe for invoking *system* binaries.
-///
-/// When Ferrix is launched from an AppImage (or any portable bundle) the
-/// runtime injects vars like `LD_LIBRARY_PATH`, `GIO_MODULE_DIR`,
-/// `GSETTINGS_SCHEMA_DIR`, `GTK_PATH`, `XDG_DATA_DIRS`, … pointing inside
-/// the AppImage's mount. Spawning system tools (`pacman`, `apt`, `flatpak`…)
-/// with that env causes them to load mismatched libraries / schemas and
-/// either crash silently or behave incorrectly — which is exactly why
-/// `check_updates` returned no updates from the AppImage build.
-///
-/// AppRun saves the originals as `APPIMAGE_ORIGINAL_<VAR>`. Restore them if
-/// present, otherwise unset the contaminated values.
-fn system_command(program: &str) -> Command {
-    let mut cmd = Command::new(program);
-    const VARS: &[&str] = &[
-        "LD_LIBRARY_PATH",
-        "LD_PRELOAD",
-        "PYTHONPATH",
-        "PYTHONHOME",
-        "PERLLIB",
-        "PERL5LIB",
-        "XDG_DATA_DIRS",
-        "XDG_CONFIG_DIRS",
-        "GIO_MODULE_DIR",
-        "GIO_EXTRA_MODULES",
-        "GSETTINGS_SCHEMA_DIR",
-        "GTK_PATH",
-        "GTK_DATA_PREFIX",
-        "GTK_EXE_PREFIX",
-        "GTK_IM_MODULE_FILE",
-        "GDK_PIXBUF_MODULE_FILE",
-        "GDK_PIXBUF_MODULEDIR",
-        "QT_PLUGIN_PATH",
-        "FONTCONFIG_PATH",
-        "FONTCONFIG_FILE",
-        "LIBVA_DRIVERS_PATH",
-    ];
-    for var in VARS {
-        let original = format!("APPIMAGE_ORIGINAL_{var}");
-        match std::env::var_os(&original) {
-            Some(val) if !val.is_empty() => {
-                cmd.env(var, val);
-            }
-            _ => {
-                cmd.env_remove(var);
-            }
-        }
-    }
-    cmd
-}
+use crate::sysenv::system_command;
 
 fn strip_ansi_codes(input: &str) -> String {
     let mut result = String::with_capacity(input.len());

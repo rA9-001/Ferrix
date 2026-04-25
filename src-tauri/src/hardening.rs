@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::fs;
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HardeningStatus {
@@ -33,7 +33,7 @@ fn read_sysctl(key: &str) -> String {
 fn apply_sysctl(key: &str, value: &str) -> Result<String, String> {
     // Apply at runtime
     let param = format!("{}={}", key, value);
-    let output = Command::new("pkexec")
+    let output = system_command("pkexec")
         .args(["sysctl", "-w", &param])
         .output()
         .map_err(|e| format!("Failed to run pkexec: {}", e))?;
@@ -53,7 +53,7 @@ fn persist_sysctl(key: &str, value: &str) {
     let line = format!("{} = {}", key, value);
 
     // Read existing file or start fresh
-    let existing = Command::new("cat")
+    let existing = system_command("cat")
         .arg(conf_path)
         .output()
         .ok()
@@ -81,7 +81,7 @@ fn persist_sysctl(key: &str, value: &str) {
     let content = format!("{}{}\n", header, lines.join("\n"));
 
     // Write via tee (reuses the existing pkexec auth cache)
-    let _ = Command::new("pkexec")
+    let _ = system_command("pkexec")
         .args(["tee", conf_path])
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::null())
@@ -98,7 +98,7 @@ fn persist_sysctl(key: &str, value: &str) {
 fn remove_persisted_sysctl(key: &str) {
     let conf_path = "/etc/sysctl.d/99-ferrix-hardening.conf";
 
-    let existing = Command::new("cat")
+    let existing = system_command("cat")
         .arg(conf_path)
         .output()
         .ok()
@@ -121,14 +121,14 @@ fn remove_persisted_sysctl(key: &str) {
     // If only header comments remain, delete the file
     let has_settings = lines.iter().any(|l| !l.trim().starts_with('#') && !l.trim().is_empty());
     if !has_settings {
-        let _ = Command::new("pkexec")
+        let _ = system_command("pkexec")
             .args(["rm", "-f", conf_path])
             .output();
         return;
     }
 
     let content = format!("{}\n", lines.join("\n"));
-    let _ = Command::new("pkexec")
+    let _ = system_command("pkexec")
         .args(["tee", conf_path])
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::null())

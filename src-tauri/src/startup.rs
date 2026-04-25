@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StartupEntry {
@@ -255,7 +255,7 @@ fn enrich_description(comment: &str, id: &str, command: &str) -> String {
 /// Scan systemd user services.
 fn scan_systemd_user_services(entries: &mut Vec<StartupEntry>) {
     // List all enabled user services
-    let output = Command::new("systemctl")
+    let output = system_command("systemctl")
         .args(["--user", "list-unit-files", "--type=service", "--state=enabled", "--no-pager", "--no-legend"])
         .output();
 
@@ -286,7 +286,7 @@ fn scan_systemd_user_services(entries: &mut Vec<StartupEntry>) {
     }
 
     // Also list disabled user services
-    let output = Command::new("systemctl")
+    let output = system_command("systemctl")
         .args(["--user", "list-unit-files", "--type=service", "--state=disabled", "--no-pager", "--no-legend"])
         .output();
 
@@ -322,7 +322,7 @@ fn get_systemd_description(unit: &str) -> String {
     if !is_valid_unit_name(unit) {
         return String::new();
     }
-    let output = Command::new("systemctl")
+    let output = system_command("systemctl")
         .args(["--user", "show", "--", unit, "--property=Description", "--no-pager"])
         .output();
 
@@ -435,7 +435,7 @@ fn toggle_systemd_entry(entry: &StartupEntry, enabled: bool) -> Result<String, S
     let service_name = format!("{}.service", entry.name);
     let action = if enabled { "enable" } else { "disable" };
 
-    let output = Command::new("systemctl")
+    let output = system_command("systemctl")
         .args(["--user", action, "--", &service_name])
         .output()
         .map_err(|e| e.to_string())?;
@@ -467,7 +467,7 @@ pub fn remove_startup_entry(id: &str) -> Result<String, String> {
             }
             let service_name = format!("{}.service", entry.name);
             // Disable first, then mask to prevent re-enabling
-            let output = Command::new("systemctl")
+            let output = system_command("systemctl")
                 .args(["--user", "disable", "--", &service_name])
                 .output()
                 .map_err(|e| e.to_string())?;

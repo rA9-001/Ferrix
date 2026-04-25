@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::process::Command;
+use crate::sysenv::system_command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FirewallStatus {
@@ -38,7 +38,7 @@ fn run_ufw_with_status(action_args: &[&str]) -> Result<(String, String, String),
     let ufw_cmd = format!("ufw {} && echo __UFW_SEP__ && ufw status verbose && echo __UFW_SEP__ && ufw status numbered",
         action_args.iter().map(|a| shell_escape(a)).collect::<Vec<_>>().join(" "));
 
-    let output = Command::new("pkexec")
+    let output = system_command("pkexec")
         .args(["bash", "-c", &ufw_cmd])
         .output()
         .map_err(|e| format!("Failed to run pkexec: {}", e))?;
@@ -65,7 +65,7 @@ fn run_ufw_with_status(action_args: &[&str]) -> Result<(String, String, String),
 
 /// Read both status views in a single pkexec call.
 fn read_ufw_status() -> Result<(String, String), String> {
-    let output = Command::new("pkexec")
+    let output = system_command("pkexec")
         .args(["bash", "-c", "ufw status verbose && echo __UFW_SEP__ && ufw status numbered"])
         .output()
         .map_err(|e| format!("Failed to run pkexec: {}", e))?;
@@ -111,7 +111,7 @@ fn build_status_from(verbose: &str, numbered: &str) -> FirewallStatus {
 }
 
 fn detect_backend() -> Option<&'static str> {
-    if Command::new("which").arg("ufw").output().map(|o| o.status.success()).unwrap_or(false) {
+    if system_command("which").arg("ufw").output().map(|o| o.status.success()).unwrap_or(false) {
         Some("ufw")
     } else {
         None

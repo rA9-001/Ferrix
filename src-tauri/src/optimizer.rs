@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::fs;
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TweakStatus {
@@ -30,7 +30,7 @@ fn read_sys(path: &str) -> String {
 }
 
 fn run_cmd(program: &str, args: &[&str]) -> Result<String, String> {
-    let output = Command::new(program)
+    let output = system_command(program)
         .args(args)
         .output()
         .map_err(|e| format!("Failed to run {}: {}", program, e))?;
@@ -48,7 +48,7 @@ const TMPFILES_PERF_CONF: &str = "/etc/tmpfiles.d/99-ferrix-performance.conf";
 fn persist_sysctl_perf(key: &str, value: &str) {
     let line = format!("{} = {}", key, value);
 
-    let existing = Command::new("cat")
+    let existing = system_command("cat")
         .arg(SYSCTL_PERF_CONF)
         .output()
         .ok()
@@ -72,7 +72,7 @@ fn persist_sysctl_perf(key: &str, value: &str) {
                   # Do not edit manually; changes are overwritten on apply/restore.\n";
     let content = format!("{}{}\n", header, settings.join("\n"));
 
-    let _ = Command::new("pkexec")
+    let _ = system_command("pkexec")
         .args(["tee", SYSCTL_PERF_CONF])
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::null())
@@ -87,7 +87,7 @@ fn persist_sysctl_perf(key: &str, value: &str) {
 }
 
 fn remove_persisted_sysctl_perf(key: &str) {
-    let existing = Command::new("cat")
+    let existing = system_command("cat")
         .arg(SYSCTL_PERF_CONF)
         .output()
         .ok()
@@ -113,14 +113,14 @@ fn remove_persisted_sysctl_perf(key: &str) {
     });
 
     if !has_settings {
-        let _ = Command::new("pkexec")
+        let _ = system_command("pkexec")
             .args(["rm", "-f", SYSCTL_PERF_CONF])
             .output();
         return;
     }
 
     let content = format!("{}\n", lines.join("\n"));
-    let _ = Command::new("pkexec")
+    let _ = system_command("pkexec")
         .args(["tee", SYSCTL_PERF_CONF])
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::null())
@@ -137,7 +137,7 @@ fn remove_persisted_sysctl_perf(key: &str) {
 fn persist_sysfs(path: &str, value: &str) {
     let line = format!("w {} - - - - {}", path, value);
 
-    let existing = Command::new("cat")
+    let existing = system_command("cat")
         .arg(TMPFILES_PERF_CONF)
         .output()
         .ok()
@@ -161,7 +161,7 @@ fn persist_sysfs(path: &str, value: &str) {
                   # Do not edit manually; changes are overwritten on apply/restore.\n";
     let content = format!("{}{}\n", header, settings.join("\n"));
 
-    let _ = Command::new("pkexec")
+    let _ = system_command("pkexec")
         .args(["tee", TMPFILES_PERF_CONF])
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::null())
@@ -176,7 +176,7 @@ fn persist_sysfs(path: &str, value: &str) {
 }
 
 fn remove_persisted_sysfs(path: &str) {
-    let existing = Command::new("cat")
+    let existing = system_command("cat")
         .arg(TMPFILES_PERF_CONF)
         .output()
         .ok()
@@ -202,14 +202,14 @@ fn remove_persisted_sysfs(path: &str) {
     });
 
     if !has_settings {
-        let _ = Command::new("pkexec")
+        let _ = system_command("pkexec")
             .args(["rm", "-f", TMPFILES_PERF_CONF])
             .output();
         return;
     }
 
     let content = format!("{}\n", lines.join("\n"));
-    let _ = Command::new("pkexec")
+    let _ = system_command("pkexec")
         .args(["tee", TMPFILES_PERF_CONF])
         .stdin(std::process::Stdio::piped())
         .stdout(std::process::Stdio::null())

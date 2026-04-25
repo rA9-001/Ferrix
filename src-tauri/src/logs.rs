@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::process::Command;
+use crate::sysenv::system_command;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct LogEntry {
@@ -23,7 +23,7 @@ pub struct JournalUnit {
 
 pub fn get_journal_units() -> Vec<JournalUnit> {
     let mut units = Vec::new();
-    if let Ok(out) = Command::new("journalctl")
+    if let Ok(out) = system_command("journalctl")
         .args(["--field=_SYSTEMD_UNIT"])
         .output()
     {
@@ -115,7 +115,7 @@ pub fn query_logs(
 
     let mut entries = Vec::new();
 
-    if let Ok(out) = Command::new("journalctl")
+    if let Ok(out) = system_command("journalctl")
         .args(&args)
         .output()
     {
@@ -183,7 +183,7 @@ pub fn query_logs(
 
 pub fn get_boot_list() -> Vec<String> {
     let mut boots = Vec::new();
-    if let Ok(out) = Command::new("journalctl")
+    if let Ok(out) = system_command("journalctl")
         .args(["--list-boots", "--no-pager"])
         .output()
     {

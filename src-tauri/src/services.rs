@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::process::Command;
+use crate::sysenv::system_command;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ServiceInfo {
@@ -26,7 +26,7 @@ pub struct ServiceLogs {
 pub fn list_services() -> Vec<ServiceInfo> {
     let mut services = Vec::new();
 
-    let output = Command::new("systemctl")
+    let output = system_command("systemctl")
         .args(["list-units", "--type=service", "--all", "--no-pager", "--no-legend", "--plain"])
         .output();
 
@@ -49,7 +49,7 @@ pub fn list_services() -> Vec<ServiceInfo> {
     };
 
     // Get enabled state for all units
-    let enabled_output = Command::new("systemctl")
+    let enabled_output = system_command("systemctl")
         .args(["list-unit-files", "--type=service", "--no-pager", "--no-legend", "--plain"])
         .output();
 
@@ -67,7 +67,7 @@ pub fn list_services() -> Vec<ServiceInfo> {
 
     // Get detailed info via show
     for name in &unit_names {
-        let show_output = Command::new("systemctl")
+        let show_output = system_command("systemctl")
             .args([
                 "show",
                 &format!("{}.service", name),
@@ -136,7 +136,7 @@ pub fn disable_service(name: &str) -> ServiceResult {
 }
 
 pub fn get_service_logs(name: &str, lines: u32) -> ServiceLogs {
-    let output = Command::new("journalctl")
+    let output = system_command("journalctl")
         .args([
             "-u",
             &format!("{}.service", name),
@@ -172,7 +172,7 @@ fn run_systemctl(action: &str, name: &str) -> ServiceResult {
         };
     }
 
-    let output = Command::new("pkexec")
+    let output = system_command("pkexec")
         .args(["systemctl", action, &format!("{}.service", name)])
         .output();
 

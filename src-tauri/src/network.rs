@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
+use crate::sysenv::system_command;
 use std::collections::HashMap;
 use std::fs;
-use std::process::Command;
 
 // ── Data Structures ──────────────────────────────────────────────
 
@@ -219,7 +219,7 @@ pub fn get_traffic_snapshot() -> Vec<InterfaceTraffic> {
 // ── Active Connections ───────────────────────────────────────────
 
 fn get_connections() -> Vec<Connection> {
-    let output = Command::new("ss")
+    let output = system_command("ss")
         .args(["-tunap", "--no-header"])
         .output();
 
@@ -274,7 +274,7 @@ fn get_connections() -> Vec<Connection> {
 // ── Listening Ports ──────────────────────────────────────────────
 
 fn get_listening_ports() -> Vec<ListeningPort> {
-    let output = Command::new("ss")
+    let output = system_command("ss")
         .args(["-tulnp", "--no-header"])
         .output();
 
@@ -329,7 +329,7 @@ fn get_dns_info() -> DnsInfo {
     let mut resolver = String::new();
 
     // Try systemd-resolve --status first
-    let resolve_out = Command::new("resolvectl")
+    let resolve_out = system_command("resolvectl")
         .args(["status", "--no-pager"])
         .output();
 
@@ -398,7 +398,7 @@ fn get_dns_info() -> DnsInfo {
 }
 
 fn get_default_gateway() -> String {
-    let output = Command::new("ip")
+    let output = system_command("ip")
         .args(["-j", "route", "show", "default"])
         .output();
 
@@ -416,7 +416,7 @@ fn get_default_gateway() -> String {
     }
 
     // Fallback: parse plain `ip route`
-    let output = Command::new("ip")
+    let output = system_command("ip")
         .args(["route", "show", "default"])
         .output();
 
@@ -436,7 +436,7 @@ fn get_default_gateway() -> String {
 fn get_ip_addresses() -> HashMap<String, (String, String)> {
     let mut map: HashMap<String, (String, String)> = HashMap::new();
 
-    let output = Command::new("ip")
+    let output = system_command("ip")
         .args(["-j", "addr", "show"])
         .output();
 

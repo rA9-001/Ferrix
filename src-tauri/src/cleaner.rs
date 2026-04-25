@@ -1,8 +1,8 @@
 use crate::distro::DistroInfo;
+use crate::sysenv::system_command;
 use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CleanupCategory {
@@ -434,7 +434,7 @@ fn run_batched_root_cleanup(
 
     let script = script_parts.join("\n");
 
-    let output = match Command::new("pkexec")
+    let output = match system_command("pkexec")
         .args(["bash", "-c", &script])
         .output()
     {
