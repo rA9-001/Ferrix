@@ -1,0 +1,8 @@
+[build]
+rustflags = [
+  "--remap-path-prefix", "/home/admin=~",
+  "--remap-path-prefix", "/home/admin/.cargo=cargo",
+  "--remap-path-prefix", "/home/runner=~",
+  "--remap-path-prefix", "/home/runner/.cargo=cargo",
+  "--remap-path-prefix", "/usr/share/rust=rust",
+]

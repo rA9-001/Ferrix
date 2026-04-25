@@ -1,0 +1,142 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            rust_target: x86_64-unknown-linux-gnu
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "name=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            build-essential \
+            file \
+            binutils
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Configure reproducible / metadata-free build flags
+        run: |
+          mkdir -p .cargo
+          cat > .cargo/config.toml <<'EOF'
+          [build]
+          rustflags = [
+            "--remap-path-prefix", "/home/runner=~",
+            "--remap-path-prefix", "/home/runner/.cargo=cargo",
+            "--remap-path-prefix", "/usr/share/rust=rust",
+          ]
+          EOF
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build Tauri bundles
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Reproducible build timestamp (epoch 0)
+          SOURCE_DATE_EPOCH: '0'
+        with:
+          args: --target ${{ matrix.rust_target }}
+
+      - name: Strip binary metadata
+        run: |
+          BIN="src-tauri/target/${{ matrix.rust_target }}/release/ferrix"
+          if [ -f "$BIN" ]; then
+            strip --strip-all "$BIN" || true
+            file "$BIN"
+          fi
+
+      - name: Collect artifacts
+        id: artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          BUNDLE_DIR="src-tauri/target/${{ matrix.rust_target }}/release/bundle"
+          find "$BUNDLE_DIR" -type f \
+            \( -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \) \
+            -exec cp {} dist/ \;
+          ls -la dist/
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd dist
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Verify no leaked metadata
+        run: |
+          BIN="src-tauri/target/${{ matrix.rust_target }}/release/ferrix"
+          echo "=== Searching for leaked paths/usernames ==="
+          if strings "$BIN" | grep -E '/home/runner|/Users/|admin|rA9-001' | head -20; then
+            echo "WARNING: potential metadata found above"
+          else
+            echo "OK: no obvious metadata leaks"
+          fi
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: Ferrix ${{ steps.tag.outputs.name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
