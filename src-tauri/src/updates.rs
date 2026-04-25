@@ -2,6 +2,57 @@ use serde::Serialize;
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 
+/// Build a `Command` with an environment safe for invoking *system* binaries.
+///
+/// When Ferrix is launched from an AppImage (or any portable bundle) the
+/// runtime injects vars like `LD_LIBRARY_PATH`, `GIO_MODULE_DIR`,
+/// `GSETTINGS_SCHEMA_DIR`, `GTK_PATH`, `XDG_DATA_DIRS`, … pointing inside
+/// the AppImage's mount. Spawning system tools (`pacman`, `apt`, `flatpak`…)
+/// with that env causes them to load mismatched libraries / schemas and
+/// either crash silently or behave incorrectly — which is exactly why
+/// `check_updates` returned no updates from the AppImage build.
+///
+/// AppRun saves the originals as `APPIMAGE_ORIGINAL_<VAR>`. Restore them if
+/// present, otherwise unset the contaminated values.
+fn system_command(program: &str) -> Command {
+    let mut cmd = Command::new(program);
+    const VARS: &[&str] = &[
+        "LD_LIBRARY_PATH",
+        "LD_PRELOAD",
+        "PYTHONPATH",
+        "PYTHONHOME",
+        "PERLLIB",
+        "PERL5LIB",
+        "XDG_DATA_DIRS",
+        "XDG_CONFIG_DIRS",
+        "GIO_MODULE_DIR",
+        "GIO_EXTRA_MODULES",
+        "GSETTINGS_SCHEMA_DIR",
+        "GTK_PATH",
+        "GTK_DATA_PREFIX",
+        "GTK_EXE_PREFIX",
+        "GTK_IM_MODULE_FILE",
+        "GDK_PIXBUF_MODULE_FILE",
+        "GDK_PIXBUF_MODULEDIR",
+        "QT_PLUGIN_PATH",
+        "FONTCONFIG_PATH",
+        "FONTCONFIG_FILE",
+        "LIBVA_DRIVERS_PATH",
+    ];
+    for var in VARS {
+        let original = format!("APPIMAGE_ORIGINAL_{var}");
+        match std::env::var_os(&original) {
+            Some(val) if !val.is_empty() => {
+                cmd.env(var, val);
+            }
+            _ => {
+                cmd.env_remove(var);
+            }
+        }
+    }
+    cmd
+}
+
 fn strip_ansi_codes(input: &str) -> String {
     let mut result = String::with_capacity(input.len());
     let bytes = input.as_bytes();
@@ -24,7 +75,7 @@ fn strip_ansi_codes(input: &str) -> String {
 }
 
 fn is_running_as_root() -> bool {
-    Command::new("id")
+    system_command("id")
         .arg("-u")
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).trim() == "0")
@@ -60,7 +111,7 @@ fn get_real_user() -> Option<String> {
     }
     if let Ok(uid) = std::env::var("PKEXEC_UID") {
         if is_valid_uid(&uid) {
-            if let Ok(out) = Command::new("id").args(["-nu", "--", &uid]).output() {
+            if let Ok(out) = system_command("id").args(["-nu", "--", &uid]).output() {
                 let name = String::from_utf8_lossy(&out.stdout).trim().to_string();
                 if is_valid_username(&name) && name != "root" {
                     return Some(name);
@@ -73,7 +124,7 @@ fn get_real_user() -> Option<String> {
             return Some(user);
         }
     }
-    if let Ok(out) = Command::new("logname").output() {
+    if let Ok(out) = system_command("logname").output() {
         let name = String::from_utf8_lossy(&out.stdout).trim().to_string();
         if is_valid_username(&name) && name != "root" {
             return Some(name);
@@ -134,7 +185,7 @@ fn pacman_check_updates_via_temp_db() -> Option<String> {
     let _ = std::os::unix::fs::symlink("/var/lib/pacman/local", &local_link);
 
     // Refresh the temp sync DB (downloads only diffs, no root needed).
-    let sync_status = Command::new("pacman")
+    let sync_status = system_command("pacman")
         .args(["-Sy", "--dbpath"])
         .arg(&tmp_root)
         .stdout(Stdio::null())
@@ -147,7 +198,7 @@ fn pacman_check_updates_via_temp_db() -> Option<String> {
     }
 
     // pacman -Qu exits 1 when there are no updates; that's still success here.
-    let qu = Command::new("pacman")
+    let qu = system_command("pacman")
         .args(["-Qu", "--dbpath"])
         .arg(&tmp_root)
         .output()
@@ -167,7 +218,7 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
             // pacman-contrib (no root needed, syncs to a temp DB).
             // If unavailable, replicate it ourselves so we never silently
             // return stale results from a stale local sync DB.
-            let stdout_str = match Command::new("checkupdates").output() {
+            let stdout_str = match system_command("checkupdates").output() {
                 Ok(out) if out.status.success() || !out.stdout.is_empty() => {
                     String::from_utf8_lossy(&out.stdout).into_owned()
                 }
@@ -185,9 +236,9 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
             }
 
             // Check AUR updates via yay or paru if available
-            let aur_helper = if Command::new("yay").arg("--version").output().is_ok() {
+            let aur_helper = if system_command("yay").arg("--version").output().is_ok() {
                 Some("yay")
-            } else if Command::new("paru").arg("--version").output().is_ok() {
+            } else if system_command("paru").arg("--version").output().is_ok() {
                 Some("paru")
             } else {
                 None
@@ -195,14 +246,14 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
             if let Some(helper) = aur_helper {
                 let aur_out = if is_running_as_root() {
                     if let Some(real_user) = get_real_user() {
-                        Command::new("sudo")
+                        system_command("sudo")
                             .args(["-u", &real_user, helper, "-Qua", "--color=never"])
                             .output()
                     } else {
-                        Command::new(helper).args(["-Qua", "--color=never"]).output()
+                        system_command(helper).args(["-Qua", "--color=never"]).output()
                     }
                 } else {
-                    Command::new(helper).args(["-Qua", "--color=never"]).output()
+                    system_command(helper).args(["-Qua", "--color=never"]).output()
                 };
                 if let Ok(out) = aur_out {
                     let stdout = strip_ansi_codes(&String::from_utf8_lossy(&out.stdout));
@@ -225,7 +276,7 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
         }
         "apt" => {
             // Use cached package data - apt update will run during apply_updates
-            if let Ok(out) = Command::new("apt")
+            if let Ok(out) = system_command("apt")
                 .args(["list", "--upgradable"])
                 .output()
             {
@@ -255,7 +306,7 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
             }
         }
         "dnf" => {
-            if let Ok(out) = Command::new("dnf")
+            if let Ok(out) = system_command("dnf")
                 .args(["check-update", "--quiet"])
                 .output()
             {
@@ -273,7 +324,7 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
             }
         }
         "zypper" => {
-            if let Ok(out) = Command::new("zypper")
+            if let Ok(out) = system_command("zypper")
                 .args(["list-updates"])
                 .output()
             {
@@ -296,7 +347,7 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
     }
 
     // Check flatpak updates
-    if let Ok(out) = Command::new("flatpak")
+    if let Ok(out) = system_command("flatpak")
         .args(["remote-ls", "--updates", "--columns=application"])
         .output()
     {
@@ -335,9 +386,9 @@ pub fn check_updates(package_manager: &str) -> UpdateCheckResult {
 pub fn apply_updates<F: Fn(&str)>(emit_line: &F, package_manager: &str, update_flatpak: bool) {
     // Use AUR helper for full system update if available (covers official + AUR)
     let aur_helper = if package_manager == "pacman" {
-        if Command::new("yay").arg("--version").output().is_ok() {
+        if system_command("yay").arg("--version").output().is_ok() {
             Some("yay")
-        } else if Command::new("paru").arg("--version").output().is_ok() {
+        } else if system_command("paru").arg("--version").output().is_ok() {
             Some("paru")
         } else {
             None
@@ -443,7 +494,7 @@ fn run_streaming<F: Fn(&str)>(
     program: &str,
     args: &[String],
 ) -> Result<(bool, String), String> {
-    let mut child = Command::new(program)
+    let mut child = system_command(program)
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
