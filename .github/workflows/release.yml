@@ -84,14 +84,13 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Build frontend
+        run: npm run build
+
       - name: Build Tauri bundles
-        uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Reproducible build timestamp (epoch 0)
           SOURCE_DATE_EPOCH: '0'
-        with:
-          args: --target ${{ matrix.rust_target }}
+        run: npx tauri build --target ${{ matrix.rust_target }}
 
       - name: Strip binary metadata
         run: |
