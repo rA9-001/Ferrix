@@ -1,7 +1,7 @@
 //! Append-only audit log + per-command rate limiting for privileged operations.
 //!
-//! - Audit log lives at `$XDG_STATE_HOME/ferrix/audit.log`
-//!   (falling back to `~/.local/state/ferrix/audit.log`).
+//! - Audit log lives at `$XDG_STATE_HOME/lar/audit.log`
+//!   (falling back to `~/.local/state/lar/audit.log`).
 //! - Rate limiting uses a process-wide `Mutex<HashMap<String, Instant>>`
 //!   to throttle each named command to one invocation per `min_interval`.
 //!
@@ -25,7 +25,7 @@ fn audit_log_path() -> Option<PathBuf> {
             std::env::var_os("HOME")
                 .map(|h| PathBuf::from(h).join(".local").join("state"))
         })?;
-    let dir = base.join("ferrix");
+    let dir = base.join("lar");
     if let Err(e) = create_dir_all(&dir) {
         eprintln!("audit_log: failed to create {:?}: {}", dir, e);
         return None;

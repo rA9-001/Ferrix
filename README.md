@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="static/ferrix-icon.png" alt="Ferrix" width="128" />
+  <img src="static/lar-icon.png" alt="Lar" width="128" />
 </p>
 
-<h1 align="center">Ferrix</h1>
+<h1 align="center">Lar</h1>
 
 <p align="center">
   A Linux system utility built with Tauri v2, Svelte 5, and Rust.<br/>
@@ -22,7 +22,7 @@
 
 ## What it does
 
-Ferrix is a single desktop app that handles the kind of system tasks you'd normally do across a dozen terminal commands. Everything runs locally — no accounts, no servers, no background services.
+Lar is a single desktop app that handles the kind of system tasks you'd normally do across a dozen terminal commands. Everything runs locally — no accounts, no servers, no background services.
 
 **Modules:**
 
@@ -64,8 +64,8 @@ Auto-detects your distribution and adapts package commands accordingly.
 **Requirements:** [Rust](https://rustup.rs/) (stable), [Node.js](https://nodejs.org/) (v18+), [Tauri v2 system dependencies](https://v2.tauri.app/start/prerequisites/)
 
 ```bash
-git clone https://github.com/rA9-001/Ferrix.git
-cd Ferrix
+git clone https://github.com/rA9-001/Lar.git
+cd Lar
 npm install
 npm run tauri dev      # development
 npm run tauri build    # production (output: src-tauri/target/release/)
@@ -120,7 +120,7 @@ src-tauri/              # Rust backend
 - Fully offline — no telemetry, no analytics, nothing phones home
 - Root access only requested when actually needed (via `pkexec`)
 - All user inputs validated against allow-list patterns before reaching system commands
-- Privileged actions logged to `$XDG_STATE_HOME/ferrix/audit.log`
+- Privileged actions logged to `$XDG_STATE_HOME/lar/audit.log`
 - Privileged commands are rate-limited
 - Release builds use LTO, single codegen unit, overflow checks, and symbol stripping
 - Frontend locked down with CSP and frozen prototypes
@@ -129,9 +129,9 @@ src-tauri/              # Rust backend
 
 ## Contributing
 
-Ferrix is open source under the [MIT license](LICENSE) — fork it, modify it, use it however you want.
+Lar is open source under the [MIT license](LICENSE) — fork it, modify it, use it however you want.
 
-Direct push access to this repo is restricted. If you want to report a bug, suggest a feature, or discuss a change, [open an issue](https://github.com/rA9-001/Ferrix/issues).
+Direct push access to this repo is restricted. If you want to report a bug, suggest a feature, or discuss a change, [open an issue](https://github.com/rA9-001/Lar/issues).
 
 ---
 

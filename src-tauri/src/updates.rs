@@ -113,7 +113,7 @@ fn pacman_check_updates_via_temp_db() -> Option<String> {
     use std::fs;
     use std::path::PathBuf;
 
-    let tmp_root = std::env::temp_dir().join(format!("ferrix-checkupdates-{}", std::process::id()));
+    let tmp_root = std::env::temp_dir().join(format!("lar-checkupdates-{}", std::process::id()));
     let sync_dst = tmp_root.join("sync");
     let local_link = tmp_root.join("local");
 

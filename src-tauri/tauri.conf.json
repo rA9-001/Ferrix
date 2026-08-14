@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Ferrix",
+  "productName": "Lar",
   "version": "0.1.9",
-  "identifier": "com.ferrix.app",
+  "identifier": "com.lar.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Ferrix",
+        "title": "Lar",
         "width": 1000,
         "height": 700,
         "maximized": true

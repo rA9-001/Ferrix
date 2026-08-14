@@ -990,22 +990,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ferrix"
-version = "0.1.9"
-dependencies = [
- "chrono",
- "dirs",
- "jwalk",
- "libc",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-opener",
- "tokio",
-]
-
-[[package]]
 name = "field-offset"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1995,6 +1979,22 @@ dependencies = [
  "html5ever 0.29.1",
  "indexmap 2.14.0",
  "selectors 0.24.0",
+]
+
+[[package]]
+name = "lar"
+version = "0.1.9"
+dependencies = [
+ "chrono",
+ "dirs",
+ "jwalk",
+ "libc",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-opener",
+ "tokio",
 ]
 
 [[package]]

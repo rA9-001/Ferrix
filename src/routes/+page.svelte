@@ -165,8 +165,8 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="brand">
-          <img class="brand-logo" src="/favicon.png" alt="Ferrix" />
-          <h1>Ferrix</h1>
+          <img class="brand-logo" src="/favicon.png" alt="Lar" />
+          <h1>Lar</h1>
         </div>
       </div>
       <nav>
